@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# build all docker images
+# build besu image
 cd containers/Genesis && docker build -t besu .
 
-# build the docker image for nodes
+# build image for nodes
 cd ../Nodes && docker build -t node .
 
 # run compose file for all besu network

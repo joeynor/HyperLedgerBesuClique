@@ -6,7 +6,9 @@
 1. run the following commands
  
 ```bash
-git clone https://github.com/abuyusif01/Clique.git
+git clone --recurse-submodules -j8 https://github.com/abuyusif01/clique
 
 cd Clique && bash build.sh
 ```
+
+2. Wait for atleast 5mins for all services to be up, then neviagate to `http://localhost` to view explorer
