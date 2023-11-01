@@ -6,4 +6,4 @@ containers/data/node3/data/**
 
 
 # besu instance logs and chainlens
-containers/chainlens-free/*.log
+containers/chainlens-free/docker-compose/*.log
