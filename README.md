@@ -8,7 +8,7 @@
 ```bash
 git clone --recurse-submodules -j8 https://github.com/abuyusif01/clique
 
-cd Clique && bash build.sh
+cd clique && bash build.sh
 ```
 
 2. Wait for atleast 5-10mins for all services to be up, then neviagate to `http://localhost` to view explorer
