@@ -11,7 +11,7 @@ services:
       - "8551:8551" # WS ENGINE JSON-RPC
       - "30303:30303" # P2P
     volumes:
-      - /home/abuyusif01/dev/uia/rizal/Clique/containers/data:/opt/besu/data
+      - ./data:/opt/besu/data
     command:
       [
         "--identity=genesis",
@@ -38,7 +38,7 @@ services:
       - "8553:8551" # WS ENGINE JSON-RPC
       - "30304:30303" # P2P
     volumes:
-      - /home/abuyusif01/dev/uia/rizal/Clique/containers/data:/opt/besu/data
+      - ./data:/opt/besu/data
     command:
       [
         "--identity=node1",
@@ -66,7 +66,7 @@ services:
       - "8557:8551" # WS ENGINE JSON-RPC
       - "30305:30303" # P2P
     volumes:
-      - /home/abuyusif01/dev/uia/rizal/Clique/containers/data:/opt/besu/data
+      - ./data:/opt/besu/data
     command:
       [
         "--identity=node2",
@@ -94,7 +94,7 @@ services:
       - "8561:8551" # WS ENGINE JSON-RPC
       - "30306:30303" # P2P
     volumes:
-      - /home/abuyusif01/dev/uia/rizal/Clique/containers/data:/opt/besu/data
+      - ./data:/opt/besu/data
     command:
       [
         "--identity=node3",
