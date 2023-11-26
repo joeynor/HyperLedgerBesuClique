@@ -9,3 +9,4 @@ containers/data/node5/data/**
 
 # chainlens logs
 containers/chainlens-free/docker-compose/*.log
+containers/chainlens-free
