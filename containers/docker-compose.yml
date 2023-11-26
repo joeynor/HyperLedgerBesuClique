@@ -1,16 +1,11 @@
 version: '3.6'
 services:
-  genesis:
-    image: besu
+  bootnode-001-genesis:
+    restart: on-failure
+    image: genesis-v2
     network_mode: host
-    ports:
-      - "8545:8545" # JSON-RPC
-      - "8546:8546" # WebSockets
-      - "8547:8547" # GraphQL
-      - "8550:8550" # HTTP ENGINE JSON-RPC
-      - "8551:8551" # WS ENGINE JSON-RPC
-      - "30303:30303" # P2P
     volumes:
+      - ./besu:/opt/besu
       - ./data:/opt/besu/data
     command:
       [
@@ -25,86 +20,126 @@ services:
         "--nat-method=DOCKER"
       ]
 
-  node1:
+  bootnode-002-initial-signer-001:
+    restart: on-failure
     depends_on:
-      - genesis
-    image: node
+      - bootnode-001-genesis
+    image: node-v2
     network_mode: host
     entrypoint: [ "./data/scripts/enode.sh" ]
-    ports:
-      - "8548:8545" # JSON-RPC
-      - "8549:8546" # WebSockets
-      - "8552:8550" # HTTP ENGINE JSON-RPC
-      - "8553:8551" # WS ENGINE JSON-RPC
-      - "30304:30303" # P2P
     volumes:
+      - ./besu:/opt/besu
       - ./data:/opt/besu/data
     command:
       [
-        "--identity=node1",
+        "--identity=bootnode-002-initial-signer-001",
         "--data-path=/opt/besu/data/node1/data",
         "--genesis-file=/opt/besu/data/cliqueGenesis.json",
         "--rpc-http-enabled=true",
-        "--rpc-http-api=ETH,NET,CLIQUE",
+        "--rpc-http-api=ETH,NET,CLIQUE,ADMIN",
         "--host-allowlist=*",
         "--rpc-http-cors-origins=all",
-        "--p2p-port=30304",
-        "--rpc-http-port=8548",
+        "--p2p-port=30313", # 30303 + 10
+        "--rpc-http-port=8555", # 8545 + 10
         "--nat-method=DOCKER"
       ]
 
-  node2:
+  initial-signer-002:
+    restart: on-failure
     depends_on:
-      - genesis
-    image: node
+      - bootnode-001-genesis
+      - bootnode-002-initial-signer-001
+    image: node-v2
     network_mode: host
-    entrypoint: [ "./data/scripts/enode.sh" ]
-    ports:
-      - "8554:8545" # JSON-RPC
-      - "8555:8546" # WebSockets
-      - "8556:8550" # HTTP ENGINE JSON-RPC
-      - "8557:8551" # WS ENGINE JSON-RPC
-      - "30305:30303" # P2P
+    entrypoint: [ "./data/scripts/nodes.sh" ]
     volumes:
+      - ./besu:/opt/besu
       - ./data:/opt/besu/data
     command:
       [
-        "--identity=node2",
+        "--identity=initial-signer-002",
         "--data-path=/opt/besu/data/node2/data",
         "--genesis-file=/opt/besu/data/cliqueGenesis.json",
         "--rpc-http-enabled=true",
         "--rpc-http-api=ETH,NET,CLIQUE",
         "--host-allowlist=*",
         "--rpc-http-cors-origins=all",
-        "--p2p-port=30305",
-        "--rpc-http-port=8554",
+        "--p2p-port=30323", # 30313 + 10
+        "--rpc-http-port=8565", # 8555 + 10
         "--nat-method=DOCKER"
       ]
 
-  node3:
+  node-001:
+    restart: on-failure
     depends_on:
-      - genesis
-    image: node
+      - bootnode-001-genesis
+      - bootnode-002-initial-signer-001
+    image: node-v2
     network_mode: host
-    entrypoint: [ "./data/scripts/enode.sh" ]
-    ports:
-      - "8558:8545" # JSON-RPC
-      - "8559:8546" # WebSockets
-      - "8560:8550" # HTTP ENGINE JSON-RPC
-      - "8561:8551" # WS ENGINE JSON-RPC
-      - "30306:30303" # P2P
+    entrypoint: [ "./data/scripts/nodes.sh" ]
     volumes:
+      - ./besu:/opt/besu
       - ./data:/opt/besu/data
     command:
       [
-        "--identity=node3",
+        "--identity=node-001",
         "--data-path=/opt/besu/data/node3/data",
         "--genesis-file=/opt/besu/data/cliqueGenesis.json",
         "--rpc-http-enabled=true",
         "--rpc-http-api=ETH,NET,CLIQUE",
         "--host-allowlist=*",
         "--rpc-http-cors-origins=all",
-        "--p2p-port=30306",
-        "--rpc-http-port=8558",
+        "--p2p-port=30333", # 30323 + 10
+        "--rpc-http-port=8575", # 8565 + 10
+        "--nat-method=DOCKER"
+      ]
+
+  node-002:
+    restart: on-failure
+    depends_on:
+      - bootnode-001-genesis
+      - bootnode-002-initial-signer-001
+    image: node-v2
+    network_mode: host
+    entrypoint: [ "./data/scripts/nodes.sh" ]
+    volumes:
+      - ./besu:/opt/besu
+      - ./data:/opt/besu/data
+    command:
+      [
+        "--identity=node-002",
+        "--data-path=/opt/besu/data/node4/data",
+        "--genesis-file=/opt/besu/data/cliqueGenesis.json",
+        "--rpc-http-enabled=true",
+        "--rpc-http-api=ETH,NET,CLIQUE",
+        "--host-allowlist=*",
+        "--rpc-http-cors-origins=all",
+        "--p2p-port=30343", # 30333 + 10
+        "--rpc-http-port=8585", # 8575 + 10
+        "--nat-method=DOCKER"
+      ]
+
+  node-003:
+    restart: on-failure
+    depends_on:
+      - bootnode-001-genesis
+      - bootnode-002-initial-signer-001
+    image: node-v2
+    network_mode: host
+    entrypoint: [ "./data/scripts/nodes.sh" ]
+    volumes:
+      - ./besu:/opt/besu
+      - ./data:/opt/besu/data
+    command:
+      [
+        "--identity=node-003",
+        "--data-path=/opt/besu/data/node5/data",
+        "--genesis-file=/opt/besu/data/cliqueGenesis.json",
+        "--rpc-http-enabled=true",
+        "--rpc-http-api=ETH,NET,CLIQUE",
+        "--host-allowlist=*",
+        "--rpc-http-cors-origins=all",
+        "--p2p-port=30353", # 30343 + 10
+        "--rpc-http-port=8595", # 8585 + 10
         "--nat-method=DOCKER"
       ]

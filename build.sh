@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # build besu image
-cd containers/Genesis && docker build -t besu .
+cd containers/Genesis && docker build -t genesis-v2 .
 
 # build image for nodes
-cd ../Nodes && docker build -t node .
+cd ../Nodes && docker build -t node-v2 .
 
 # run compose file for all besu network
 cd ../ && docker-compose up -d
