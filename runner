@@ -1,0 +1,86 @@
+#!/bin/bash
+
+# Function to show an error message and exit
+show_error() {
+    echo "Invalid action. Please use '--action start' or '--action stop'."
+    exit 1
+}
+
+# Function to stop the Docker containers
+stop_containers() {
+    echo "Stopping Docker containers..."
+    cd containers && docker-compose down
+    cd chainlens-free/docker-compose && docker-compose down
+    echo "Docker containers stopped."
+}
+
+# Function to build and run the Docker containers based on the operating system
+run_containers() {
+    if [ -z "$PORT" ]; then
+        echo "Error: PORT parameter is required. Please provide a valid port number."
+        exit 1
+    fi
+    
+    # install python dependencies
+    cd connect && pip3 install -r requirements.txt
+    
+    # build besu image
+    cd ../containers/Genesis && docker build -t genesis-v2 .
+    
+    # build image for nodes
+    cd ../Nodes && docker build -t node-v2 .
+    
+    # run compose file for all besu network
+    cd ../ && docker-compose up -d
+    
+    # determine the operating system
+    case "$(uname -s)" in
+        Linux*)     # Linux
+            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose up -d
+        ;;
+        Darwin*)    # macOS
+            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+        ;;
+        CYGWIN*)    # Windows
+            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+        ;;
+        MINGW*)     # Windows
+            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+        ;;
+        *)
+            echo "Unsupported operating system"
+            exit 1
+        ;;
+    esac
+}
+
+# Parse command line options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --action)
+            action="$2"
+            shift
+        ;;
+        --port)
+            PORT="$2"
+            shift
+        ;;
+        *)
+            show_error
+        ;;
+    esac
+    shift
+done
+
+# Perform the specified action
+case "$action" in
+    start)
+        run_containers
+    ;;
+    stop)
+        stop_containers
+    ;;
+    *)
+        show_error
+    ;;
+esac
