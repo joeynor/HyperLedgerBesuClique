@@ -109,6 +109,11 @@ fi
 if [ -z "$EXPLORER" ]; then
     EXPLORER=false
 fi
+
+# Set default value for PORT if not provided
+if [ -z "$PORT" ]; then
+    PORT=9600
+fi
 # Perform the specified action
 case "$action" in
     start)
