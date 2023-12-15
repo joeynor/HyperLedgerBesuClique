@@ -13,7 +13,7 @@ show_help() {
     echo "  --action     Specify the action to perform: 'start' to start containers, 'stop' to stop containers."
     echo "  --port       Specify the port number for the application."
     echo "  --init       (Optional) Specify 'true' to install Python dependencies and build Docker images. Default is 'false'."
-    echo "  --explorer (Optional) Specify 'true' to start only the network. Default is 'false'."
+    echo "  --explorer (Optional) Specify 'true' to start network and chainlens-explorer. Default is 'false' which start only network without chainlens-explorer."
     echo "  --help       Show this help message."
     exit 0
 }
