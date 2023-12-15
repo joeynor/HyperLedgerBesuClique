@@ -2,17 +2,18 @@
 
 # Function to show an error message and exit
 show_error() {
-    echo "Invalid action. Please use '--action start', '--action stop', '--help', '--init <true|false>' options.'"
+    echo "Invalid action. Please use '--action start', '--action stop', '--help', '--init <true|false>' '--explorer <true|false>'options.'"
     exit 1
 }
 
 # Function to display help
 show_help() {
-    echo "Usage: $0 --action <start|stop> --port <PORT> [--init <true|false>] [--help]"
+    echo "Usage: $0 --action <start|stop> --port <PORT> [--init <true|false>] [--help] [--explorer <true|false>]"
     echo "Options:"
     echo "  --action     Specify the action to perform: 'start' to start containers, 'stop' to stop containers."
     echo "  --port       Specify the port number for the application."
     echo "  --init       (Optional) Specify 'true' to install Python dependencies and build Docker images. Default is 'false'."
+    echo "  --explorer (Optional) Specify 'true' to start only the network. Default is 'false'."
     echo "  --help       Show this help message."
     exit 0
 }
@@ -46,25 +47,28 @@ run_containers() {
     # run compose file for all besu network
     docker-compose -f containers/docker-compose.yml up -d
     
-    # determine the operating system
-    case "$(uname -s)" in
-        Linux*)     # Linux
-            NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
-        ;;
-        Darwin*)    # macOS
-            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
-        ;;
-        CYGWIN*)    # Windows
-            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
-        ;;
-        MINGW*)     # Windows
-            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
-        ;;
-        *)
-            echo "Unsupported operating system"
-            exit 1
-        ;;
-    esac
+    # run compose file for chainlens free
+    if [ $EXPLORER = true ]; then
+        # determine the operating system
+        case "$(uname -s)" in
+            Linux*)     # Linux
+                NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            Darwin*)    # macOS
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            CYGWIN*)    # Windows
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            MINGW*)     # Windows
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            *)
+                echo "Unsupported operating system"
+                exit 1
+            ;;
+        esac
+    fi
 }
 
 # Parse command line options
@@ -82,6 +86,10 @@ while [[ "$#" -gt 0 ]]; do
             INIT="$2"
             shift
         ;;
+        --explorer)
+            EXPLORER="$2"
+            shift
+        ;;
         --help)
             show_help
         ;;
@@ -97,6 +105,10 @@ if [ -z "$INIT" ]; then
     INIT=false
 fi
 
+# Set default value for EXPLORER if not provided
+if [ -z "$EXPLORER" ]; then
+    EXPLORER=false
+fi
 # Perform the specified action
 case "$action" in
     start)
