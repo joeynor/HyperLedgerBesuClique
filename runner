@@ -2,15 +2,26 @@
 
 # Function to show an error message and exit
 show_error() {
-    echo "Invalid action. Please use '--action start' or '--action stop'."
+    echo "Invalid action. Please use '--action start', '--action stop', '--help', '--init <true|false>' options.'"
     exit 1
+}
+
+# Function to display help
+show_help() {
+    echo "Usage: $0 --action <start|stop> --port <PORT> [--init <true|false>] [--help]"
+    echo "Options:"
+    echo "  --action     Specify the action to perform: 'start' to start containers, 'stop' to stop containers."
+    echo "  --port       Specify the port number for the application."
+    echo "  --init       (Optional) Specify 'true' to install Python dependencies and build Docker images. Default is 'false'."
+    echo "  --help       Show this help message."
+    exit 0
 }
 
 # Function to stop the Docker containers
 stop_containers() {
     echo "Stopping Docker containers..."
-    cd containers && docker-compose down
-    cd chainlens-free/docker-compose && docker-compose down
+    docker-compose -f containers/docker-compose.yml down
+    docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml down
     echo "Docker containers stopped."
 }
 
@@ -21,31 +32,33 @@ run_containers() {
         exit 1
     fi
     
-    # install python dependencies
-    cd connect && pip3 install -r requirements.txt
-    
-    # build besu image
-    cd ../containers/Genesis && docker build -t genesis-v2 .
-    
-    # build image for nodes
-    cd ../Nodes && docker build -t node-v2 .
+    # Install python dependencies if --init is true and build images as well.
+    if [ "$INIT" = true ]; then
+        pip3 install -r connect/requirements.txt
+        # build besu image
+        cd containers/Genesis && docker build -t genesis-v2 .
+        
+        # build image for nodes
+        cd ../Nodes && docker build -t node-v2 .
+        cd ../..
+    fi
     
     # run compose file for all besu network
-    cd ../ && docker-compose up -d
+    docker-compose -f containers/docker-compose.yml up -d
     
     # determine the operating system
     case "$(uname -s)" in
         Linux*)     # Linux
-            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose up -d
+            NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
         ;;
         Darwin*)    # macOS
-            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
         ;;
         CYGWIN*)    # Windows
-            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
         ;;
         MINGW*)     # Windows
-            cd chainlens-free/docker-compose && NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose up -d
+            NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
         ;;
         *)
             echo "Unsupported operating system"
@@ -65,12 +78,24 @@ while [[ "$#" -gt 0 ]]; do
             PORT="$2"
             shift
         ;;
+        --init)
+            INIT="$2"
+            shift
+        ;;
+        --help)
+            show_help
+        ;;
         *)
             show_error
         ;;
     esac
     shift
 done
+
+# Set default value for INIT if not provided
+if [ -z "$INIT" ]; then
+    INIT=false
+fi
 
 # Perform the specified action
 case "$action" in
@@ -81,6 +106,6 @@ case "$action" in
         stop_containers
     ;;
     *)
-        show_error
+        show_help
     ;;
 esac

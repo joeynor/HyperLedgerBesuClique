@@ -3,6 +3,7 @@ services:
   bootnode-001-genesis:
     restart: on-failure
     image: genesis-v2
+    container_name: bootnode-001-genesis
     network_mode: host
     volumes:
       - ./besu:/opt/besu
@@ -21,6 +22,7 @@ services:
       ]
 
   bootnode-002-initial-signer-001:
+    container_name: bootnode-002-initial-signer-001
     restart: on-failure
     depends_on:
       - bootnode-001-genesis
@@ -44,7 +46,9 @@ services:
         "--nat-method=DOCKER"
       ]
 
+
   initial-signer-002:
+    container_name: initial-signer-002
     restart: on-failure
     depends_on:
       - bootnode-001-genesis
@@ -70,6 +74,7 @@ services:
       ]
 
   node-001:
+    container_name: node-001
     restart: on-failure
     depends_on:
       - bootnode-001-genesis
@@ -95,6 +100,7 @@ services:
       ]
 
   node-002:
+    container_name: node-002
     restart: on-failure
     depends_on:
       - bootnode-001-genesis
@@ -120,6 +126,7 @@ services:
       ]
 
   node-003:
+    container_name: node-003
     restart: on-failure
     depends_on:
       - bootnode-001-genesis
