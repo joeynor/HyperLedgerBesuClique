@@ -6,7 +6,7 @@
 1. run the following commands
  
 ```bash
-git clone --recurse-submodules -j8 https://github.com/abuyusif01/clique
+git clone --recurse-submodules -j8 https://github.com/abuyusif01/clique clique
 
 # --init == install python dependencies, therefore run this only once
 # --network == determine weither to enable explorer or not
