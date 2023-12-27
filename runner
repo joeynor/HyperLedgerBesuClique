@@ -32,7 +32,7 @@ run_containers() {
         echo "Error: PORT parameter is required. Please provide a valid port number."
         exit 1
     fi
-    PWD=$(pwd)
+    
     # Install python dependencies if --init is true and build images as well.
     if [ "$INIT" = true ]; then
         pip3 install -r connect/requirements.txt
@@ -41,21 +41,23 @@ run_containers() {
         
         # build image for nodes
         cd ../Nodes && docker build -t node-v2 .
-        cd $PWD
-
+        cd $BASE
+        
         # generate keys for bootnodes, and initial signers
         cd containers/data
-        for i in {0..2}; do
-            cd node$i
-            besu --data-path=data public-key export --to=data/node$i.pub
-            cp data/node$i.pub ../keys/node$i.pub
-            cd ..
-        done
-        cd $PWD
+        
+        # cleanup data folder
+        rm -rf keys/*
 
+        for i in {0..2}; do
+            besu --data-path=$BASE/containers/data/node$i/data public-key export-address --to=$BASE/containers/data/node$i/data/node$i.pub
+            cp $BASE/containers/data/node$i/data/node$i.pub $BASE/containers/data/keys/node$i.pub
+        done
+        cd $BASE
+        
         # generate genesis file
-        cd containers/data/script && python3 genGenesis.py
-        cd $PWD
+        cd containers/data/scripts && python3 genGenesis.py
+        cd $BASE
     fi
     
     # run compose file for all besu network
@@ -104,6 +106,10 @@ while [[ "$#" -gt 0 ]]; do
             EXPLORER="$2"
             shift
         ;;
+        --base)
+            BASE="$2"
+            shift
+        ;;
         --help)
             show_help
         ;;
@@ -127,6 +133,10 @@ fi
 # Set default value for PORT if not provided
 if [ -z "$PORT" ]; then
     PORT=9600
+fi
+
+if [ -z "$BASE" ]; then
+    BASE=$PWD
 fi
 # Perform the specified action
 case "$action" in
