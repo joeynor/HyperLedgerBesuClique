@@ -24,3 +24,9 @@ bash runner --action start --port 80 --init true --explorer true
 ```
 
 2. Wait for atleast 5-10mins for all services to be up, then neviagate to <http://localhost> to view explorer `(if --explorer true)` is suplied. 
+
+
+## Cloud Deployment
+
+1. Open port 8545 for RPC
+2. Open port 80 for web-explorer
