@@ -5,6 +5,7 @@ containers/data/node2/data/**
 containers/data/node3/data/**
 containers/data/node4/data/**
 containers/data/node5/data/**
+containers/data/keys/**
 
 
 # chainlens logs
