@@ -226,8 +226,8 @@ function _picocli_besu() {
   local prev_word=${COMP_WORDS[COMP_CWORD-1]}
 
   local commands="blocks public-key password retesteth rlp operator validate-config storage"
-  local flag_opts="--tx-pool-no-local-priority --tx-pool-disable-locals --tx-pool-enable-save-restore --strict-tx-replay-protection-enabled --p2p-enabled --discovery-enabled --remote-connections-limit-enabled --random-peer-priority-enabled --graphql-http-enabled --engine-rpc-enabled --engine-jwt-disabled --rpc-http-enabled --rpc-http-authentication-enabled --rpc-http-tls-enabled --rpc-http-tls-client-auth-enabled --rpc-http-tls-ca-clients-enabled --json-pretty-print-enabled --rpc-ws-enabled --rpc-ws-authentication-enabled --privacy-tls-enabled --privacy-enabled --privacy-multi-tenancy-enabled --privacy-enable-database-migration --privacy-flexible-groups-enabled --metrics-enabled --metrics-push-enabled --color-enabled --miner-enabled --miner-stratum-enabled --pruning-enabled --permissions-nodes-config-file-enabled --permissions-accounts-config-file-enabled --permissions-nodes-contract-enabled --permissions-accounts-contract-enabled --revert-reason-enabled --auto-log-bloom-caching-enabled -h --help -V --version --compatibility-eth64-forkid-enabled"
-  local arg_opts="--tx-pool --tx-pool-save-file --tx-pool-price-bump --rpc-tx-feecap --tx-pool-priority-senders --tx-pool-layer-max-capacity --tx-pool-max-prioritized --tx-pool-max-future-by-sender --tx-pool-retention-hours --tx-pool-limit-by-account-percentage --tx-pool-max-size --config-file --data-path --genesis-file --identity --bootnodes --p2p-host --p2p-interface --p2p-port --max-peers --p2p-peer-upper-bound --remote-connections-max-percentage --discovery-dns-url --banned-node-ids --banned-node-id --sync-mode --fast-sync-min-peers --network --nat-method --network-id --kzg-trusted-setup --graphql-http-host --graphql-http-port --graphql-http-cors-origins --engine-rpc-port --engine-rpc-http-port --engine-jwt-secret --engine-host-allowlist --rpc-http-host --rpc-http-port --rpc-http-max-active-connections --rpc-http-cors-origins --rpc-http-api --rpc-http-apis --rpc-http-api-method-no-auth --rpc-http-api-methods-no-auth --rpc-http-authentication-credentials-file --rpc-http-authentication-jwt-public-key-file --rpc-http-authentication-jwt-algorithm --rpc-http-tls-keystore-file --rpc-http-tls-keystore-password-file --rpc-http-tls-known-clients-file --rpc-http-tls-protocol --rpc-http-tls-protocols --rpc-http-tls-cipher-suite --rpc-http-tls-cipher-suites --rpc-http-max-batch-size --rpc-http-max-request-content-length --rpc-ws-authentication-jwt-algorithm --rpc-ws-host --rpc-ws-port --rpc-ws-max-frame-size --rpc-ws-max-active-connections --rpc-ws-api --rpc-ws-apis --rpc-ws-api-methods-no-auth --rpc-ws-api-method-no-auth --rpc-ws-authentication-credentials-file --rpc-ws-authentication-jwt-public-key-file --privacy-tls-keystore-file --privacy-tls-keystore-password-file --privacy-tls-known-enclave-file --privacy-url --privacy-public-key-file --privacy-marker-transaction-signing-key-file --metrics-protocol --metrics-host --metrics-port --metrics-category --metrics-categories --metrics-push-host --metrics-push-port --metrics-push-interval --metrics-push-prometheus-job --host-allowlist --reorg-logging-threshold --miner-stratum-host --miner-stratum-port --miner-coinbase --miner-extra-data --min-gas-price --min-block-occupancy-ratio --permissions-nodes-config-file --permissions-accounts-config-file --permissions-nodes-contract-address --permissions-nodes-contract-version --permissions-accounts-contract-address --required-blocks --required-block --target-gas-limit --key-value-storage --security-module --pruning-blocks-retained --pruning-block-confirmations --pid-path --api-gas-price-blocks --api-gas-price-percentile --api-gas-price-max --static-nodes-file --rpc-max-logs-range --cache-last-blocks --ethstats --ethstats-contact --ethstats-cacert-file --node-private-key-file --logging -l --data-storage-format --bonsai-historical-block-limit --bonsai-maximum-back-layers-to-load"
+  local flag_opts="--tx-pool-no-local-priority --tx-pool-disable-locals --tx-pool-enable-save-restore --strict-tx-replay-protection-enabled --miner-enabled --miner-stratum-enabled --p2p-enabled --discovery-enabled --remote-connections-limit-enabled --random-peer-priority-enabled --graphql-http-enabled --engine-rpc-enabled --engine-jwt-disabled --rpc-http-enabled --rpc-http-authentication-enabled --rpc-http-tls-enabled --rpc-http-tls-client-auth-enabled --rpc-http-tls-ca-clients-enabled --json-pretty-print-enabled --rpc-ws-enabled --rpc-ws-authentication-enabled --privacy-tls-enabled --privacy-enabled --privacy-multi-tenancy-enabled --privacy-enable-database-migration --privacy-flexible-groups-enabled --metrics-enabled --metrics-push-enabled --color-enabled --pruning-enabled --permissions-nodes-config-file-enabled --permissions-accounts-config-file-enabled --permissions-nodes-contract-enabled --permissions-accounts-contract-enabled --revert-reason-enabled --auto-log-bloom-caching-enabled -h --help -V --version --compatibility-eth64-forkid-enabled"
+  local arg_opts="--tx-pool --tx-pool-save-file --tx-pool-price-bump --rpc-tx-feecap --tx-pool-priority-senders --tx-pool-layer-max-capacity --tx-pool-max-prioritized --tx-pool-max-future-by-sender --tx-pool-retention-hours --tx-pool-limit-by-account-percentage --tx-pool-max-size --miner-stratum-host --miner-stratum-port --miner-coinbase --miner-extra-data --min-block-occupancy-ratio --min-gas-price --min-priority-fee --target-gas-limit --config-file --data-path --genesis-file --identity --bootnodes --p2p-host --p2p-interface --p2p-port --max-peers --p2p-peer-upper-bound --remote-connections-max-percentage --discovery-dns-url --banned-node-ids --banned-node-id --sync-mode --fast-sync-min-peers --network --nat-method --network-id --kzg-trusted-setup --graphql-http-host --graphql-http-port --graphql-http-cors-origins --engine-rpc-port --engine-rpc-http-port --engine-jwt-secret --engine-host-allowlist --rpc-http-host --rpc-http-port --rpc-http-max-active-connections --rpc-http-cors-origins --rpc-http-api --rpc-http-apis --rpc-http-api-method-no-auth --rpc-http-api-methods-no-auth --rpc-http-authentication-credentials-file --rpc-http-authentication-jwt-public-key-file --rpc-http-authentication-jwt-algorithm --rpc-http-tls-keystore-file --rpc-http-tls-keystore-password-file --rpc-http-tls-known-clients-file --rpc-http-tls-protocol --rpc-http-tls-protocols --rpc-http-tls-cipher-suite --rpc-http-tls-cipher-suites --rpc-http-max-batch-size --rpc-http-max-request-content-length --rpc-ws-authentication-jwt-algorithm --rpc-ws-host --rpc-ws-port --rpc-ws-max-frame-size --rpc-ws-max-active-connections --rpc-ws-api --rpc-ws-apis --rpc-ws-api-methods-no-auth --rpc-ws-api-method-no-auth --rpc-ws-authentication-credentials-file --rpc-ws-authentication-jwt-public-key-file --privacy-tls-keystore-file --privacy-tls-keystore-password-file --privacy-tls-known-enclave-file --privacy-url --privacy-public-key-file --privacy-marker-transaction-signing-key-file --metrics-protocol --metrics-host --metrics-port --metrics-category --metrics-categories --metrics-push-host --metrics-push-port --metrics-push-interval --metrics-push-prometheus-job --host-allowlist --reorg-logging-threshold --permissions-nodes-config-file --permissions-accounts-config-file --permissions-nodes-contract-address --permissions-nodes-contract-version --permissions-accounts-contract-address --required-blocks --required-block --key-value-storage --security-module --pruning-blocks-retained --pruning-block-confirmations --pid-path --api-gas-price-blocks --api-gas-price-percentile --api-gas-price-max --static-nodes-file --rpc-max-logs-range --cache-last-blocks --ethstats --ethstats-contact --ethstats-cacert-file --node-private-key-file --logging -l --data-storage-format --bonsai-historical-block-limit --bonsai-maximum-back-layers-to-load"
   local Enum_option_args=("LEGACY" "LAYERED") # --tx-pool values
   local MODE_option_args=("FULL" "FAST" "X_SNAP" "X_CHECKPOINT") # --sync-mode values
   local NETWORK_option_args=("MAINNET" "SEPOLIA" "GOERLI" "HOLESKY" "DEV" "FUTURE_EIPS" "EXPERIMENTAL_EIPS" "CLASSIC" "MORDOR") # --network values
@@ -276,6 +276,30 @@ function _picocli_besu() {
       return
       ;;
     --tx-pool-max-size)
+      return
+      ;;
+    --miner-stratum-host)
+      return
+      ;;
+    --miner-stratum-port)
+      return
+      ;;
+    --miner-coinbase)
+      return
+      ;;
+    --miner-extra-data)
+      return
+      ;;
+    --min-block-occupancy-ratio)
+      return
+      ;;
+    --min-gas-price)
+      return
+      ;;
+    --min-priority-fee)
+      return
+      ;;
+    --target-gas-limit)
       return
       ;;
     --config-file)
@@ -530,24 +554,6 @@ function _picocli_besu() {
     --reorg-logging-threshold)
       return
       ;;
-    --miner-stratum-host)
-      return
-      ;;
-    --miner-stratum-port)
-      return
-      ;;
-    --miner-coinbase)
-      return
-      ;;
-    --miner-extra-data)
-      return
-      ;;
-    --min-gas-price)
-      return
-      ;;
-    --min-block-occupancy-ratio)
-      return
-      ;;
     --permissions-nodes-config-file)
       return
       ;;
@@ -564,9 +570,6 @@ function _picocli_besu() {
       return
       ;;
     --required-blocks|--required-block)
-      return
-      ;;
-    --target-gas-limit)
       return
       ;;
     --key-value-storage)
