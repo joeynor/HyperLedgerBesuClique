@@ -45,8 +45,9 @@ run_containers() {
         
         # generate keys for bootnodes, and initial signers
         cd containers/data
-        
+
         # cleanup data folder
+        mkdir -p keys
         rm -rf keys/*
 
         for i in {0..2}; do
