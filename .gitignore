@@ -7,11 +7,13 @@ containers/data/node4/data/**
 containers/data/node5/data/**
 containers/data/keys/**
 
-
 # chainlens logs
 containers/chainlens-free/docker-compose/*.log
 containers/chainlens-free
 
-
 # besu cache
 containers/besu/.cache/*
+
+#genesis file
+
+containers/data/cliqueGenesis.json
