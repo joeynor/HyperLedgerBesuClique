@@ -12,6 +12,7 @@ class ExtraData:
         self.balance = balance
         self.keystore_file = kwargs.get("keystore_file", None)
         self.override_genesis = kwargs.get("override_genesis", False)
+        self.alloc = kwargs.get("alloc", "False")
         self._generate()
 
     def _generate(self) -> None:
@@ -35,32 +36,33 @@ class ExtraData:
         return str(self.genesis["extraData"]).replace("_", self.keys)
 
     def create_new_genesis_file(self, genesis_file: str) -> None:
-        # open over the folder accounts, and loop over all the accounts from 0..x and create alloc field using the content of file key.pun
-        accounts = []
-        private_keys = []
-        for account in os.listdir("../keys/accounts"):
-            try:
-                with open("../keys/accounts/" + account + "/key.pub", "r") as f:
-                    address = f.read()[2:]
-                    accounts.append({address: {"balance": self.balance}})
+        # open over the folder accounts, and loop over all the accounts from 0..x and create alloc field using the content of file key.pem
+        if "True" or "true" in self.alloc:
+            accounts = []
+            private_keys = []
+            for account in os.listdir("../keys/accounts"):
+                try:
+                    with open("../keys/accounts/" + account + "/key.pub", "r") as f:
+                        address = f.read()[2:]
+                        accounts.append({address: {"balance": self.balance}})
 
-                with open("../keys/accounts/" + account + "/key", "r") as f:
-                    private_keys.append(f.read())
-            except FileNotFoundError:
-                print("File not found. Run runner with --alloc to generate keys.")
-            except NotADirectoryError:
-                ...
+                    with open("../keys/accounts/" + account + "/key", "r") as f:
+                        private_keys.append(f.read())
+                except FileNotFoundError:
+                    print("File not found. Run runner with --alloc to generate keys.")
+                except NotADirectoryError:
+                    ...
 
-        with open(self.keystore_file, "w") as f:
-            private_keys = {"private_keys": private_keys}
-            json.dump(private_keys, f, indent=4)
+            with open(self.keystore_file, "w") as f:
+                private_keys = {"private_keys": private_keys}
+                json.dump(private_keys, f, indent=4)
 
-        first_format = {"alloc": {}}
+            first_format = {"alloc": {}}
 
-        for account_info in accounts:
-            address, details = account_info.popitem()
-            first_format["alloc"][address] = {"balance": details["balance"]}
-        self.genesis["alloc"] = first_format["alloc"]
+            for account_info in accounts:
+                address, details = account_info.popitem()
+                first_format["alloc"][address] = {"balance": details["balance"]}
+            self.genesis["alloc"] = first_format["alloc"]
 
         if "True" or "true" in self.override_genesis:
             with open(genesis_file, "w") as f:
@@ -99,6 +101,11 @@ if __name__ == "__main__":
         help="Override the genesis file.",
         default="False",
     )
+    parser.add_argument(
+        "--alloc",
+        help="save alloc or not.",
+        default="False",
+    )
 
     args = parser.parse_args()
     extraData = ExtraData(
@@ -107,5 +114,7 @@ if __name__ == "__main__":
         override_genesis=args.override_genesis,
         genesis_file=args.genesis_file,
         keystore_file=args.keystore_file,
+        alloc=args.alloc,
     )
-    extraData.create_new_genesis_file(genesis_file=args.genesis_file)
+
+extraData.create_new_genesis_file(genesis_file=args.genesis_file)
