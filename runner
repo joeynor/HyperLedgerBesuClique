@@ -2,7 +2,7 @@
 
 # Function to show an error message and exit
 show_error() {
-    echo "Invalid action. Please use '--action start', '--action stop', '--help', '--init <true|false>' '--explorer <true|false>'options.'"
+    echo "Invalid action. Please use '--action <start|stop|silent', '--help', '--init <true|false>' '--explorer <true|false>' '--base <dir|.>' '--alloc INT' '--balance BIG_INT' options.'"
     exit 1
 }
 
@@ -10,10 +10,13 @@ show_error() {
 show_help() {
     echo "Usage: $0 --action <start|stop> --port <PORT> [--init <true|false>] [--help] [--explorer <true|false>]"
     echo "Options:"
-    echo "  --action     Specify the action to perform: 'start' to start containers, 'stop' to stop containers."
-    echo "  --port       Specify the port number for the application."
+    echo "  --action     (Optional) Specify the action to perform: 'start' to start containers, 'stop' to stop containers. default is 'silent' which does nothing."
+    echo "  --port       (Required by explorer) Specify the port number for the application. if explorer is set to true, default is 9600."
     echo "  --init       (Optional) Specify 'true' to install Python dependencies and build Docker images. Default is 'false'."
-    echo "  --explorer (Optional) Specify 'true' to start network and chainlens-explorer. Default is 'false' which start only network without chainlens-explorer."
+    echo "  --explorer   (Optional) Specify 'true' to start network and chainlens-explorer. Default is 'false' which start only network without chainlens-explorer."
+    echo "  --base       (Optional) Specify the base path for the project. Default is the current directory."
+    echo "  --alloc      (Optional) Specify the number of accounts to create. Default is 1."
+    echo "  --balance    (Required by alloc) Specify the initial balance for each account. Default is 90000000000000000000000."
     echo "  --help       Show this help message."
     exit 0
 }
@@ -26,41 +29,60 @@ stop_containers() {
     echo "Docker containers stopped."
 }
 
+
+alloc() {
+    
+    cd $BASE
+    
+    # generate keys for bootnodes, and initial signers
+    cd containers/data
+    rm -rf keys/accounts
+    
+    # cleanup data folder
+    mkdir -p keys/accounts
+    # generate keys for alloc
+    
+    for ((i=0;i<$ALLOC;i++)); do
+        besu --data-path=$BASE/containers/data/keys/accounts/$i public-key export-address --to=$BASE/containers/data/keys/accounts/$i/key.pub
+    done
+    cd $BASE
+    
+    # generate genesis file
+    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True"
+    cd $BASE
+}
+
+innit() {
+    pip3 install -r connect/requirements.txt
+    # build besu image
+    cd containers/Genesis && docker build -t genesis-v2 .
+    
+    # build image for nodes
+    cd ../Nodes && docker build -t node-v2 .
+    cd $BASE
+    
+    # generate keys for bootnodes, and initial signers
+    cd containers/data
+    rm -rf keys/nodes
+    rm -rf containers/data/node{0..5}
+    
+    # cleanup data folder
+    mkdir -p keys/nodes
+    
+    # generate keys for besu
+    for i in {0..2}; do
+        rm -rf $BASE/containers/data/node$i/data
+        besu --data-path=$BASE/containers/data/node$i/data public-key export-address --to=$BASE/containers/data/node$i/data/node$i.pub
+        cp $BASE/containers/data/node$i/data/node$i.pub $BASE/containers/data/keys/nodes/node$i.pub
+    done
+    
+    cd $BASE
+    cd containers/data/scripts && python3 genGenesis.py --override-genesis "True" --account-balance $BALANCE
+}
 # Function to build and run the Docker containers based on the operating system
 run_containers() {
-    if [ -z "$PORT" ]; then
-        echo "Error: PORT parameter is required. Please provide a valid port number."
-        exit 1
-    fi
     
-    # Install python dependencies if --init is true and build images as well.
-    if [ "$INIT" = true ]; then
-        pip3 install -r connect/requirements.txt
-        # build besu image
-        cd containers/Genesis && docker build -t genesis-v2 .
-        
-        # build image for nodes
-        cd ../Nodes && docker build -t node-v2 .
-        cd $BASE
-        
-        # generate keys for bootnodes, and initial signers
-        cd containers/data
-
-        # cleanup data folder
-        mkdir -p keys
-        rm -rf keys/*
-
-        for i in {0..2}; do
-            besu --data-path=$BASE/containers/data/node$i/data public-key export-address --to=$BASE/containers/data/node$i/data/node$i.pub
-            cp $BASE/containers/data/node$i/data/node$i.pub $BASE/containers/data/keys/node$i.pub
-        done
-        cd $BASE
-        
-        # generate genesis file
-        cd containers/data/scripts && python3 genGenesis.py
-        cd $BASE
-    fi
-    
+    cd $BASE
     # run compose file for all besu network
     docker-compose -f containers/docker-compose.yml up -d
     
@@ -92,7 +114,7 @@ run_containers() {
 while [[ "$#" -gt 0 ]]; do
     case $1 in
         --action)
-            action="$2"
+            ACTION="$2"
             shift
         ;;
         --port)
@@ -111,6 +133,14 @@ while [[ "$#" -gt 0 ]]; do
             BASE="$2"
             shift
         ;;
+        --alloc)
+            ALLOC="$2"
+            shift
+        ;;
+        --balance)
+            BALANCE="$2"
+            shift
+        ;;
         --help)
             show_help
         ;;
@@ -120,6 +150,11 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+# Set default value for action if not provided
+if [ -z "$ACTION" ]; then
+    ACTION=silent
+fi
 
 # Set default value for INIT if not provided
 if [ -z "$INIT" ]; then
@@ -136,16 +171,43 @@ if [ -z "$PORT" ]; then
     PORT=9600
 fi
 
+if [ -z "$ALLOC" ]; then
+    ALLOC=0
+fi
+
+# Set default value for BASE if not provided
 if [ -z "$BASE" ]; then
     BASE=$PWD
 fi
+
+# Set default value for BALANCE if not provided
+if [ -z "$BALANCE" ]; then
+    BALANCE=90000000000000000000000
+fi
+
+# if alloc is given
+if [ $ALLOC -gt 0 ]; then
+    alloc
+fi
+
 # Perform the specified action
-case "$action" in
+case "$INIT" in
+    true)
+        innit
+    ;;
+    *)
+    ;;
+esac
+
+
+case "$ACTION" in
     start)
         run_containers
     ;;
     stop)
         stop_containers
+    ;;
+    silent)
     ;;
     *)
         show_help
