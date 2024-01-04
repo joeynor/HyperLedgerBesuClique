@@ -3,29 +3,34 @@ import argparse
 from web3 import Web3, HTTPProvider
 from web3.middleware import geth_poa_middleware, construct_sign_and_send_raw_middleware
 from eth_account import Account
-from eth_account.signers.local import LocalAccount
 
 
-def load_private_keys_from_file(file_path):
-    with open(file_path, "r") as file:
-        private_keys = json.load(file)["private_keys"]
-    return private_keys
+def load_private_keys_from_file(file_path: str) -> dict:
+    try:
+        with open(file_path, "r") as file:
+            private_keys = json.load(file)["private_keys"]
+            return private_keys
+    except FileNotFoundError:
+        print("File not found. Using backup keys.json file.")
+        with open("../containers/data/keys/accounts/keys.json", "r") as file:
+            private_keys = json.load(file)["private_keys"]
+        return private_keys
 
 
-def initialize_accounts(private_keys):
+def initialize_accounts(private_keys: list) -> list:
     return [Account.from_key(private_key) for private_key in private_keys]
 
 
-def initialize_middleware(accounts):
+def initialize_middleware(accounts: list) -> None:
     for account in accounts:
         w3.middleware_onion.add(construct_sign_and_send_raw_middleware(account))
 
 
-def get_balance(account):
+def get_balance(account: Account) -> int:
     return w3.eth.get_balance(account.address)
 
 
-def send_transaction(sender, receiver, amount):
+def send_transaction(sender: Account, receiver: Account, amount: int) -> str:
     tx = {
         "from": sender.address,
         "to": receiver.address,
@@ -38,7 +43,7 @@ def send_transaction(sender, receiver, amount):
     return tx_hash.hex()
 
 
-def list_accounts(accounts):
+def list_accounts(accounts: list) -> None:
     for i, account in enumerate(accounts):
         print(f"Account {i + 1}:")
         print(f"Address: {account.address}")
@@ -52,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--keystore",
         type=str,
-        default="private.json",
+        default="keys.json",
         help="Path to the keystore file.",
     )
     parser.add_argument(
