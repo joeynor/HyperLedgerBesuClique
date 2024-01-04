@@ -17,3 +17,6 @@ containers/besu/.cache/*
 #genesis file
 
 containers/data/cliqueGenesis.json
+
+# test
+test
