@@ -37,7 +37,7 @@ class ExtraData:
 
     def create_new_genesis_file(self, genesis_file: str) -> None:
         # open over the folder accounts, and loop over all the accounts from 0..x and create alloc field using the content of file key.pem
-        if "True" or "true" in self.alloc:
+        try:
             accounts = []
             private_keys = []
             for account in os.listdir("../keys/accounts"):
@@ -63,6 +63,9 @@ class ExtraData:
                 address, details = account_info.popitem()
                 first_format["alloc"][address] = {"balance": details["balance"]}
             self.genesis["alloc"] = first_format["alloc"]
+
+        except FileNotFoundError:
+            ...
 
         if "True" or "true" in self.override_genesis:
             with open(genesis_file, "w") as f:
