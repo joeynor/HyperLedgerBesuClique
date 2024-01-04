@@ -48,7 +48,7 @@ alloc() {
     cd $BASE
     
     # generate genesis file
-    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True"
+    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
     cd $BASE
 }
 
