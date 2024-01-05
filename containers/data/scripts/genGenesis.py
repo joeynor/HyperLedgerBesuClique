@@ -4,7 +4,7 @@ import json
 import os
 
 
-class ExtraData:
+class genGenesis:
     def __init__(self, genesis_template_file: str, balance, **kwargs) -> None:
         self.genesis_template_file = genesis_template_file
         self.genesis = None
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    extraData = ExtraData(
+    extraData = genGenesis(
         genesis_template_file=args.genesis_template_file,
         balance=args.account_balance,
         override_genesis=args.override_genesis,
