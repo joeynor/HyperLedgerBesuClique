@@ -59,4 +59,4 @@ there's a python script under `connect` that can perform the following tasks
 
 ## Maintenance
 
-One can manage and maintain the network with the help of `docs` folder. A detailed explanation on how can be explored, located at `docs`
+One can manage and maintain the network with the help of `docs/` folder. and a detailed explanation on how can be explored, located under `docs/`
