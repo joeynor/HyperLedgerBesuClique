@@ -33,10 +33,7 @@ stop_containers() {
 alloc() {
     
     cd $BASE
-    
-    # generate keys for bootnodes, and initial signers
-    cd containers/data
-    rm -rf keys/accounts
+    rm -rf containers/data/keys/accounts
     
     # cleanup data folder
     mkdir -p keys/accounts
@@ -48,8 +45,8 @@ alloc() {
     cd $BASE
     
     # generate genesis file
-    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
-    cd $BASE
+    python3 containers/data/scripts/genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
+    cp containers/data/keys/accounts/keys.json containers/connect/keys.json
 }
 
 innit() {
