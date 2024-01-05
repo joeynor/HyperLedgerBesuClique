@@ -45,8 +45,8 @@ alloc() {
     cd $BASE
     
     # generate genesis file
-    python3 containers/data/scripts/genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
-    cp containers/data/keys/accounts/keys.json containers/connect/keys.json
+    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
+    cp $BASE/containers/data/keys/accounts/keys.json $BASE/connect
 }
 
 innit() {
