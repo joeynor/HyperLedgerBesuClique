@@ -19,17 +19,6 @@ RUN apt-get update && apt-get install -y curl jq
 USER besu
 WORKDIR /opt/besu
 
-COPY --chown=besu:besu besu /opt/besu/
-
-# Expose services ports
-# 8545 HTTP JSON-RPC
-# 8546 WS JSON-RPC
-# 8547 HTTP GraphQL
-# 8550 HTTP ENGINE JSON-RPC
-# 8551 WS ENGINE JSON-RPC
-# 30303 P2P
-EXPOSE 8545 8546 8547 8550 8551 30303
-
 # defaults for host interfaces
 ENV BESU_RPC_HTTP_HOST 0.0.0.0
 ENV BESU_RPC_WS_HOST 0.0.0.0

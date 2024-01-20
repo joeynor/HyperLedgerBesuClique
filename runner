@@ -1,0 +1,212 @@
+#!/bin/bash
+
+# Function to show an error message and exit
+show_error() {
+    echo "Invalid action. Please use '--action <start|stop|silent', '--help', '--init <true|false>' '--explorer <true|false>' '--base <dir|.>' '--alloc INT' '--balance BIG_INT' options.'"
+    exit 1
+}
+
+# Function to display help
+show_help() {
+    echo "Usage: $0 --action <start|stop> --port <PORT> [--init <true|false>] [--help] [--explorer <true|false>]"
+    echo "Options:"
+    echo "  --action     (Optional) Specify the action to perform: 'start' to start containers, 'stop' to stop containers. default is 'silent' which does nothing."
+    echo "  --port       (Required by explorer) Specify the port number for the application. if explorer is set to true, default is 9600."
+    echo "  --init       (Optional) Specify 'true' to install Python dependencies and build Docker images. Default is 'false'."
+    echo "  --explorer   (Optional) Specify 'true' to start network and chainlens-explorer. Default is 'false' which start only network without chainlens-explorer."
+    echo "  --base       (Optional) Specify the base path for the project. Default is the current directory."
+    echo "  --alloc      (Optional) Specify the number of accounts to create. Default is 1."
+    echo "  --balance    (Required by alloc) Specify the initial balance for each account. Default is 90000000000000000000000."
+    echo "  --help       Show this help message."
+    exit 0
+}
+
+# Function to stop the Docker containers
+stop_containers() {
+    echo "Stopping Docker containers..."
+    docker-compose -f containers/docker-compose.yml down
+    docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml down
+    echo "Docker containers stopped."
+}
+
+
+alloc() {
+    
+    cd $BASE
+    rm -rf containers/data/keys/accounts
+    
+    # cleanup data folder
+    mkdir -p keys/accounts
+    # generate keys for alloc
+    
+    for ((i=0;i<$ALLOC;i++)); do
+        besu --data-path=$BASE/containers/data/keys/accounts/$i public-key export-address --to=$BASE/containers/data/keys/accounts/$i/key.pub
+    done
+    cd $BASE
+    
+    # generate genesis file
+    cd containers/data/scripts && python3 genGenesis.py --account-balance $BALANCE --override-genesis "True" --alloc "True"
+    cp $BASE/containers/data/keys/accounts/keys.json $BASE/connect
+}
+
+innit() {
+    pip3 install -r connect/requirements.txt
+    # build besu image
+    cd containers/Genesis && docker build -t genesis-v2 .
+    
+    # build image for nodes
+    cd ../Nodes && docker build -t node-v2 .
+    cd $BASE
+    
+    # generate keys for bootnodes, and initial signers
+    cd containers/data
+    rm -rf keys/nodes
+    rm -rf containers/data/node{0..5}
+    
+    # cleanup data folder
+    mkdir -p keys/nodes
+    
+    # generate keys for besu
+    for i in {0..2}; do
+        rm -rf $BASE/containers/data/node$i/data
+        besu --data-path=$BASE/containers/data/node$i/data public-key export-address --to=$BASE/containers/data/node$i/data/node$i.pub
+        cp $BASE/containers/data/node$i/data/node$i.pub $BASE/containers/data/keys/nodes/node$i.pub
+    done
+    
+    cd $BASE
+    cd containers/data/scripts && python3 genGenesis.py --override-genesis "True" --account-balance $BALANCE
+}
+# Function to build and run the Docker containers based on the operating system
+run_containers() {
+    
+    cd $BASE
+    # run compose file for all besu network
+    docker-compose -f containers/docker-compose.yml up -d
+    
+    # run compose file for chainlens free
+    if [ $EXPLORER = true ]; then
+        # determine the operating system
+        case "$(uname -s)" in
+            Linux*)     # Linux
+                NODE_ENDPOINT=http://172.16.239.1:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            Darwin*)    # macOS
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            CYGWIN*)    # Windows
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            MINGW*)     # Windows
+                NODE_ENDPOINT=http://host.docker.internal:8545 PORT=$PORT docker-compose -f containers/chainlens-free/docker-compose/docker-compose.yml up -d
+            ;;
+            *)
+                echo "Unsupported operating system"
+                exit 1
+            ;;
+        esac
+    fi
+}
+
+# Parse command line options
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --action)
+            ACTION="$2"
+            shift
+        ;;
+        --port)
+            PORT="$2"
+            shift
+        ;;
+        --init)
+            INIT="$2"
+            shift
+        ;;
+        --explorer)
+            EXPLORER="$2"
+            shift
+        ;;
+        --base)
+            BASE="$2"
+            shift
+        ;;
+        --alloc)
+            ALLOC="$2"
+            shift
+        ;;
+        --balance)
+            BALANCE="$2"
+            shift
+        ;;
+        --help)
+            show_help
+        ;;
+        *)
+            show_error
+        ;;
+    esac
+    shift
+done
+
+# Set default value for action if not provided
+if [ -z "$ACTION" ]; then
+    ACTION=silent
+fi
+
+# Set default value for INIT if not provided
+if [ -z "$INIT" ]; then
+    INIT=false
+fi
+
+# Set default value for EXPLORER if not provided
+if [ -z "$EXPLORER" ]; then
+    EXPLORER=false
+fi
+
+# Set default value for PORT if not provided
+if [ -z "$PORT" ]; then
+    PORT=9600
+fi
+
+if [ -z "$ALLOC" ]; then
+    ALLOC=0
+fi
+
+# Set default value for BASE if not provided
+if [ -z "$BASE" ]; then
+    BASE=$PWD
+fi
+
+# Set default value for BALANCE if not provided
+if [ -z "$BALANCE" ]; then
+    BALANCE=90000000000000000000000
+fi
+
+# if alloc is given
+if [ $ALLOC -gt 0 ]; then
+    alloc
+fi
+
+# Perform the specified action
+case "$INIT" in
+    true)
+        innit
+    ;;
+    *)
+    ;;
+esac
+
+
+case "$ACTION" in
+    start)
+        run_containers
+    ;;
+    stop)
+        stop_containers
+    ;;
+    silent)
+    ;;
+    *)
+        show_help
+    ;;
+esac
