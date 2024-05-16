@@ -18,7 +18,8 @@
 1. Clone the repo and switch to v2 branch.
 
 ```bash
-git clone --recurse-submodules -j8 https://github.com/abuyusif01/clique clique
+git clone --recurse-submodules -j8 https://github.com/joeynor/HyperLedgerBesuClique
+ clique
 cd clique
 git checkout v2 # this is required to use clique with availability option
 ```
