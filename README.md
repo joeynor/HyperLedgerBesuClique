@@ -2,7 +2,7 @@
 ## Clique private permissioned network
 
 ### Requirements - Software
-1. Docker, got to docker and read the installation instructions, and post installation
+1. Docker, go to docker webpage and read the installation instructions, and post installation
 2. Docker-compose, need to build image
 3. python >= 3.10, also need to install pip3
 4. hyperledger/besu (make sure besu executable is in your path)
