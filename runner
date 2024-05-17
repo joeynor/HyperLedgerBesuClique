@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# assumption is running from the default directory clique
+export PATH="$PATH:$PWD/containers/besu/bin/"
+
 # Function to show an error message and exit
 show_error() {
     echo "Invalid action. Please use '--action <start|stop|silent', '--help', '--init <true|false>' '--explorer <true|false>' '--base <dir|.>' '--alloc INT' '--balance BIG_INT' options.'"
