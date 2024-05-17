@@ -2,10 +2,11 @@
 ## Clique private permissioned network
 
 ### Requirements - Software
-1. Docker
-2. Docker-compose
-3. python >= 3.10
+1. Docker, got to docker and read the installation instructions, and post installation
+2. Docker-compose, need to build image
+3. python >= 3.10, also need to install pip3
 4. hyperledger/besu (make sure besu executable is in your path)
+5. need to install jdk
 
 ### Requirements - System
 1. Enable ivp6 for docker
@@ -18,11 +19,10 @@
 1. Clone the repo and switch to v2 branch.
 
 ```bash
-git clone --recurse-submodules -j8 https://github.com/joeynor/HyperLedgerBesuClique
- clique
+git clone --recurse-submodules -j8 https://github.com/joeynor/HyperLedgerBesuClique clique
 cd clique
-git checkout v2 # this is required to use clique with availability option
 ```
+~~git checkout v2 # this is required to use clique with availability option~~
 
 2. Generate new keys for initial signer, bootnodes and genesis node.
 
